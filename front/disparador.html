@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>Disparador de Whatsapp</title>
+		<meta name="description" content="Kirim tagihan melalui WhatsApp secara otomatis.">
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+		<link rel="icon" type="image/svg" href="./assets/icon.svg"/>
+		<link rel="stylesheet" type="text/css" href="./assets/main.css">
+	</head>
+	<body>
+		<header>
+			<div class="logo">
+				<a href="https://maiconramos.com" title="Maicon Ramos"><img src="./assets/logo.svg"></a>
+				<h2>Disparador de Whatsapp</h2>
+			</div>
+		</header>
+		<main>
+			<section>
+				<div class="card">
+					<div class="title">API de Whatsapp</div>
+					<div class="body server-input">
+						<input type="text" id="server" value="" placeholder="Adicione o link da sua api">
+						<button id="save-server" onclick="toast('Não precisa salvar')">Salvar</button>
+					</div>
+				</div>
+			</section>
+			<section class="preview-card preview-hidden">
+				<div class="card">
+					<div class="title">Visualizar</div>
+					<div class="body">
+						<p>preview dari semua pesan akan muncul di sini.</p>
+						<div class="outer-preview-wrapper">
+							<div class="preview-wrapper"></div>
+						</div>
+						<div class="footer">
+							<div></div>
+							<button id="send" onclick="sendMessages()">Disparar</button>
+						</div>
+					</div>
+				</div>
+			</section>
+			<section class="middle">
+				<div>
+					<div class="card data-area">
+						<div class="title">Dados</div>
+						<div class="body data-input">
+							<div class="table-wrapper">
+								<table>
+									<thead></thead>
+									<tbody></tbody>
+								</table>
+							</div>
+							<div class="pull-tab"></div>
+							<textarea id="data" autofocus placeholder="Cole seus dados de planilhas do Excel/Google Sheet aqui.  certifique-se de que a primeira linha seja o nome da coluna.  Certifique-se de que a primeira coluna seja o número do WhatsApp."></textarea>
+						</div>
+						<div class="footer">
+							<button id="format" onclick="formatData()">formatar</button>
+							<button id="save-template" class="outline" onclick="toast('Não precisa salvar')">Salvar</button>
+							<button class="outline" id="reset" onclick="resetData()">apagar</button>
+							<button class="outline" id="edit" onclick="editData()">editar</button>
+						</div>
+					</div>
+				</div>
+				<div class="progress-area-wrapper">
+					<div class="card progress-area">
+						<div class="title">Progresso</div>
+						<div class="body">
+							<h3>2/6</h3>
+							<p class="loading-dots">Enviando</p>
+						</div>
+					</div>
+				</div>
+				<div class="template-area-wrapper">
+					<div class="card template-area">
+						<div class="title">Modelos</div>
+						<div class="body">
+							<div class="pull-tab"></div>
+							<textarea id="template" placeholder="Digite seu modelo de mensagem aqui, use variável com {nome}"></textarea>
+						</div>
+						<div class="footer">
+							<div></div>
+							<button id="preview" onclick="previewMessage()">Visualizar</button>
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>Desenvolvido com por <a href="https://maiconramos.com">Maicon Ramos</a></p>
+			<!-- dibuat dengan ♥ oleh afarhansib -->
+		</footer>
+		<script src="./assets/main.js"></script>
+	</body>
+</html>

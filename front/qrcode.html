@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+		<title>API Whatsapp</title>
+		<meta name="description" content="Kirim tagihan melalui WhatsApp secara otomatis.">
+		<meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1.0, user-scalable=yes">
+		<link rel="icon" type="image/svg" href="./assets/icon.svg"/>
+		<link rel="stylesheet" type="text/css" href="./assets/main.css">
+	</head>
+	<body>
+		<header>
+			<div class="logo">
+				<a href="https://maiconramos.com" title="Maicon Ramos"><img src="./assets/logo.svg"></a>
+				<h2>API Whatsapp</h2>
+			</div>
+		</header>
+		<main>
+			<section class="middle">
+				<div class="guide-sec">
+					<div class="card">
+						<div class="title">Guia rápido</div>
+						<div class="body">
+							<ol>
+								<li><b>Não faça spam</b> com muitos números desconhecidos, pois você corre o risco de ser denunciado como spam.</li>
+								<li><b>Não use o número principal do whatsapp</b>, sempre use um chip descartável</li>
+								<li>Faça o scanner do seguinte código QR com aplicativos WhatsApp</li>
+								<li>Aproveite</li>
+							</ol>
+						</div>
+					</div>
+				</div>
+				<div class="qr-wrapper">
+					<div class="card">
+						<div class="title">Código QR</div>
+						<div class="body">
+							<img src="./assets/loader.gif" alt="loading" id="qrcode">
+						</div>
+					</div>
+				</div>
+			</section>
+		</main>
+		<footer>
+			<p>Desenvolvido com por <a href="https://maiconramos.com">Maicon Ramos</a></p>
+			<!-- dibuat dengan ♥ oleh afarhansib -->
+		</footer>
+		<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.1.3/socket.io.js" crossorigin="anonymous"></script>
+		<script>
+			const qrcode = document.getElementById("qrcode")
+			const socket = io()
+
+			socket.on("qr", src => {
+				qrcode.setAttribute("src", src)
+				qrcode.setAttribute("alt", "qrcode")
+			})
+
+			socket.on("qrstatus", src => {
+				qrcode.setAttribute("src", src)
+				qrcode.setAttribute("alt", "loading")
+			})
+
+			socket.on("log", log => {
+				console.log(log)
+			})
+		</script>
+	</body>
+</html>

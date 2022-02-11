@@ -1,22 +1,79 @@
 const {WAConnection, MessageType, MessageOptions, Mimetype} = require('@adiwajshing/baileys');
 const fs = require('fs');
 const express = require('express');
+const qrcode = require("qrcode");
 const http = require('http');
+const socketIO = require("socket.io");
 const app = express();
 const port = process.env.PORT || 8001;
 const server = http.createServer(app);
 const { body, validationResult } = require('express-validator');
+const io = socketIO(server);
+
+
 app.use(express.json()); 
 app.use(express.urlencoded({ extended: true }));
 
+app.use("/assets", express.static(__dirname + "/front/assets"))
+
+app.get("/qrcode", (req, res) => {
+	res.sendFile("./front/qrcode.html", {
+		root: __dirname
+	})
+})
+
+app.get("/", (req, res) => {
+	res.sendFile("./front/disparador.html", {
+		root: __dirname
+	})
+})
+
 async function connectToWhatsApp () {
     const conn = new WAConnection() 
+    const cliente = 'maicon';
     conn.on ('open', () => {
         // save credentials whenever updated
         console.log (`credentials updated!`)
         const authInfo = conn.base64EncodedAuthInfo() // get all the auth info we need to restore this session
-        fs.writeFileSync('./auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
+        fs.writeFileSync('./'+cliente+'auth_info.json', JSON.stringify(authInfo, null, '\t')) // save this info to a file
     })
+
+    const wa = conn;
+
+    io.on("connection", async socket => {
+      socket.emit("log", "Connecting...")
+    
+      conn.on("qr", qr => {
+        qrcode.toDataURL(qr, (err, url) => {
+          socket.emit("qr", url)
+          socket.emit("log", "QR Code received, please scan!")
+        })
+      })
+    
+      conn.on("open", res => {
+        socket.emit("qrstatus", "./assets/check.svg")
+        socket.emit("log", "WhatsApp terhubung!")
+        socket.emit("log", res)
+      })
+    
+      conn.on("close", res => {
+        socket.emit("log", "WhatsApp terputus!")
+        socket.emit("log", res)
+      })
+    
+      switch (conn.state) {
+        case "close":
+          await conn.connect()
+          break
+        case "open":
+          socket.emit("qrstatus", "./assets/check.svg")
+          socket.emit("log", "WhatsApp terhubung!")
+          break
+        default:
+          socket.emit("log", conn.state)
+      }
+    })
+
     // called when WA sends chats
     // this can take up to a few minutes if you have thousands of chats!
     conn.on('chats-received', async ({ hasNewChats }) => {
@@ -29,8 +86,8 @@ async function connectToWhatsApp () {
     conn.on('contacts-received', () => {
         console.log('you have ' + Object.keys(conn.contacts).length + ' contacts')
     })
-    if (fs.existsSync('./auth_info.json')) {
-      conn.loadAuthInfo ('./auth_info.json') // will load JSON credentials from file
+    if (fs.existsSync('./'+cliente+'auth_info.json')) {
+      conn.loadAuthInfo ('./'+cliente+'auth_info.json') // will load JSON credentials from file
       await conn.connect ()
     } else {
       await conn.connect ()
@@ -107,22 +164,32 @@ app.post('/send-message', [
       message: errors.mapped()
       });
       }
-
       const number = req.body.number;
+      const message = req.body.message;
+      const numberValid = await wa.isOnWhatsApp(number)
 
-      await conn.sendMessage (number, message, MessageType.text).then(response => {
-      res.status(200).json({
-        status: true,
-        message: 'Mensagem enviada',
-        response: response
-      });
-      }).catch(err => {
-      res.status(500).json({
-        status: false,
-        message: 'Mensagem não enviada',
-        response: err.text
-      });
-      });
+      
+      if (numberValid) {
+        await conn.sendMessage (numberValid.jid, message, MessageType.text).then(response => {
+        res.status(200).json({
+          status: true,
+          message: 'Mensagem enviada',
+          response: response
+        });
+        }).catch(err => {
+        res.status(500).json({
+          status: false,
+          message: 'Mensagem não enviada',
+          response: err.text
+        });
+        });
+      } else {
+        res.status(500).json({
+          status: false,
+          response: `O ${number} não é um número de Whatsapp.`
+        })
+      }
+
     })
 
 
